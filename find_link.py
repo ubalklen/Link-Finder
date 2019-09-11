@@ -13,7 +13,8 @@ import queue
 import datetime
 from random import randint
 from selenium import webdriver
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
+from bs4 import BeautifulSoup
 
 # Colorama setup
 colorama.init()
@@ -29,6 +30,7 @@ parsed_uri = urlparse(start_url)
 hostname = "{uri.scheme}://{uri.netloc}/".format(uri=parsed_uri)
 
 target_url = input("Link to be found on the site: ")
+target_url = target_url.rstrip("/")
 
 while not validators.url(target_url):
     print("Invalid URL")
@@ -94,10 +96,11 @@ while not page_queue.empty():
 
     try:
         driver.get(page)
-        link_list = driver.find_elements_by_xpath("//a[@href]")
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        link_list = soup.findAll("a")
 
         for link in link_list:
-            link_url = link.get_attribute("href")
+            link_url = urljoin(hostname, link["href"])
             link_text = link.text.strip()
 
             if target_url in link_url:
