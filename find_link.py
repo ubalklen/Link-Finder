@@ -101,7 +101,7 @@ while not page_queue.empty():
     try:
         driver.get(page)
         soup = BeautifulSoup(driver.page_source, "html.parser")
-        link_list = soup.findAll("a")
+        link_list = soup.findAll("a", href=True)
 
         for link in link_list:
             link_url = urljoin(hostname, link["href"])
