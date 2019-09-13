@@ -6,7 +6,8 @@ print(
     "All pages with the target link are saved on target-link-[date]-[time]-[random-ID].txt"
 )
 
-import os
+from os import path
+import sys
 import validators
 import colorama
 import queue
@@ -41,13 +42,16 @@ while not validators.url(target_url):
 start_time = datetime.datetime.now()
 
 # Output file setup
-datetime_string = start_time.strftime("%Y-%m-%d-%H-%M-%S")
-script_path = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, "frozen", False):
+    script_path = path.dirname(sys.executable)
+else:
+    script_path = path.dirname(path.abspath(__file__))
+
+dtime_str = start_time.strftime("%Y-%m-%d-%H-%M-%S")
 file_id = "".join(["%s" % randint(0, 9) for digit in range(0, 6)])
-output_file_path = os.path.join(
-    script_path, "target-link-" + datetime_string + "-" + file_id + ".txt"
-)
-output_file = open(output_file_path, "w", encoding="utf-8")
+filename = "target-link-" + dtime_str + "-" + file_id + ".txt"
+output_path = path.join(script_path, filename)
+output_file = open(output_path, "w", encoding="utf-8")
 
 # We don't want to scan files (only web pages)
 do_not_scan = (
@@ -76,7 +80,7 @@ scanned_pages = {start_url}
 options = webdriver.chrome.options.Options()
 options.add_argument("--log-level=3")  # minimal logging
 options.add_argument("--headless")
-driver_path = os.path.join(script_path, "drivers", "chromedriver.exe")
+driver_path = path.join(script_path, "drivers", "chromedriver.exe")
 driver = webdriver.Chrome(driver_path, options=options)
 driver.implicitly_wait = 1
 
